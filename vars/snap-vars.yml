@@ -1,0 +1,10 @@
+centos_packages:
+  - epel-release 
+  - snapd
+
+snapd_services:
+  - snapd.socket 
+  - snapd
+
+snapd_repo: https://aur.archlinux.org/snapd.git
+snapd_dir: /tmp/snapd

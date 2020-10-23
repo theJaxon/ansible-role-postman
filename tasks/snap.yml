@@ -1,0 +1,41 @@
+- name: Install required packages for snap on centos 
+  dnf:
+    name: "{{ item }}"
+    state: latest 
+  loop: "{{ centos_packages }}"
+  when: ansible_facts['distribution'] == "CentOS"
+
+- name: Install required packages for snap on Fedora 
+  dnf:
+    name: snapd 
+    state: latest 
+  when: ansible_facts['distribution'] == "Fedora"
+
+- name: Install snapd on Archlinux 
+  block:
+  - name: clone snapd for Archlinux 
+    git:
+      repo: "{{ snapd_repo }}"
+      dest: "{{ snapd_dir }}"
+  
+  # https://wiki.archlinux.org/index.php/Arch_User_Repository#Prerequisites
+  - name: Install needed packages from base-devel group 
+    pacman: 
+      name: base-devel 
+      state: present 
+      extra_args: --needed
+
+  - name: Build snapd from source 
+    shell: >
+      cd {{ snapd_dir }} &&
+      makepkg -si --noconfirm
+  when: ansible_facts['distribution'] == "Archlinux"
+  become: False 
+
+
+- name: Enable snapd services 
+  service:
+    name: "{{ item }}"
+    state: started 
+    enabled: True 
+  loop: "{{ snapd_services }}"

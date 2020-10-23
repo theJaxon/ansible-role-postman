@@ -1,0 +1,28 @@
+---
+# tasks file for postman
+# Ensure that snap is present and snapd service is working on Linux
+- name: Setup snap and install postman on Linux 
+  block:
+  - name: Include snap variables
+    include_vars: "snap-vars.yml"
+
+  - name: Include snap tasks
+    include_tasks: "snap.yml"
+
+  - name: Install postman on Linux
+    snap:
+      name: postman 
+      state: present
+  when: ansible_facts['system'] == "Linux"
+
+- name: Install postman on Windows
+  win_chocolatey:
+    name: postman 
+    state: latest 
+  when: ansible_facts['os_family'] == "Windows"
+
+- name: Install postman on MacOS
+  homebrew_cask:
+    name: postman 
+    state: latest 
+  when: ansible_facts['os_family'] == "Darwin"
